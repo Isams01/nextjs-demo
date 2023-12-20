@@ -1,0 +1,15 @@
+FROM node:hydrogen-alpine
+
+WORKDIR /app
+RUN chown -R node:node /app
+
+RUN ["npm", "install", "-g", "npm@9.6.6"]
+
+ADD --chown=node:node ["package.json", "package.json"]
+ADD --chown=node:node ["dist", "dist"]
+
+USER 1000
+
+RUN ["npm", "install"]
+
+CMD ["node", "dist/index.js"]

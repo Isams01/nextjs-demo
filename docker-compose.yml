@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  express:
+    build:
+      context: ./express-app
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./express-app/dist:/app/dist
+    ports:
+      - 3001:3001/tcp
