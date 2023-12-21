@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Test results
 
-## Getting Started
+## Client to express
 
-First, run the development server:
+- Client recieves messages as buffer
+- Express server not available:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+  ```bash
+    Error: getaddrinfo ENOTFOUND express
+    at GetAddrInfoReqWrap.onlookup [as oncomplete] (node:dns:107:26) {
+      errno: -3007,
+      code: 'ENOTFOUND',
+      syscall: 'getaddrinfo',
+      hostname: 'express'
+    }
+  ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Express server disconnects during connection:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+  ```bash
+    closed 1006 <Buffer > # Buffer is empty
+  ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Express server cut while container running:
 
-## Learn More
+  ```bash
+    closed 1006
+  ```
 
-To learn more about Next.js, take a look at the following resources:
+- Express server not running but container running:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  ```bash
+    Error: connect ECONNREFUSED 172.30.0.4:3001
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1555:16) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '172.30.0.4',
+      port: 3001
+    }
+    closed 1006
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Chrome setup
 
-## Deploy on Vercel
+- install XQuartz
+- Enable X11 forwarding, XQuartz -> Preferences -> Security, and check the option "Allow connections from network clients".
+- Allow Docker to connect to the X server, `xhost + <your-ip>`
+- Set display environment variable `export DISPLAY=<your-ip>:0`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Application to express
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Application recieves messages as string (`event.data`)
+- Express server not available:
+
+- Express server disconnects during connection:
+
+  - Triggers CloseEvent (has reason and code)
+
+  ```typescript
+  event.code = 1006;
+  event.reason = "";
+  ```
+
+- Express server cut while container running:
+
+  - Error sending message: `webSocket is already in CLOSING or CLOSED state.`
+
+  ```typescript
+    event.code = 1006;
+    event.reason = "";
+  ```
+
+- Express server not running but container running:
+
+  - Error event emitted
+  - Close event emitted
+
+  ```bash
+    Error event:
+    webSocket connection to 'ws://express:3001/' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED
+  ```
+
+  ```typescript
+  event.code = 1006;
+  event.reason = "";
+  ```

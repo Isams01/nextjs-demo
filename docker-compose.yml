@@ -10,3 +10,23 @@ services:
       - ./express-app/dist:/app/dist
     ports:
       - 3001:3001/tcp
+  next:
+    build:
+      context: .
+    environment:
+      NODE_ENV: development
+    ports:
+      - 3000:3000/tcp
+  client:
+    build:
+      context: ./client
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./client:/app
+  kasm:
+    image: kasmweb/ubuntu-focal-desktop:1.14.0
+    environment:
+      - VNC_PW=password
+    ports:
+      - 6901:6901/tcp
