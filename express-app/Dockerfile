@@ -12,5 +12,5 @@ USER 1000
 
 RUN ["npm", "install"]
 
-# CMD ["tail", "-f", "/dev/null"]
-CMD ["node", "dist/index.js"]
+CMD ["tail", "-f", "/dev/null"]
+# CMD ["node", "dist/index.js"]
